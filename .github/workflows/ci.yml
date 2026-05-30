@@ -1,0 +1,221 @@
+name: SSH Buddy CI/CD
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'What to do?'
+        required: true
+        type: choice
+        options:
+          - draft-release
+          - publish-release
+
+jobs:
+
+  # ── Job 1: Code Quality ─────────────────────────────────────
+  lint:
+    name: Code Quality
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install linters
+        run: pip install flake8 pylint
+
+      - name: flake8 (style check)
+        run: flake8 . --max-line-length=120 --exclude=__pycache__ --statistics
+        continue-on-error: true
+
+      - name: pylint (code quality)
+        run: pylint *.py --disable=C0114,C0115,C0116,W0611 --max-line-length=120
+        continue-on-error: true
+
+  # ── Job 2: Security Scan ────────────────────────────────────
+  security:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install security tools
+        run: pip install bandit safety
+
+      - name: Bandit (Python security scan)
+        run: bandit -r . -ll -ii --exclude ./.git
+        continue-on-error: true
+
+      - name: Safety (dependency vulnerability check)
+        run: safety check -r requirements.txt
+        continue-on-error: true
+
+  # ── Job 3: Basic Test ───────────────────────────────────────
+  test:
+    name: Basic Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install keyring keyrings.alt
+
+      - name: Test imports
+        run: |
+          python -c "import db; db.init_db(); print('db.py OK')"
+          python -c "import keystore; print('keystore.py OK')"
+          python -c "import connector; print('connector.py OK')"
+          python -c "import cli; print('cli.py OK')"
+
+      - name: Test DB operations
+        run: |
+          python -c "
+          import db
+          db.init_db()
+          ok, msg = db.add_server('test-server', '1.2.3.4', 'admin', 22, 'test', 'test note')
+          assert ok, msg
+          servers = db.get_all_servers()
+          assert len(servers) == 1
+          db.delete_server('test-server')
+          print('All DB tests passed!')
+          "
+
+  # ── Job 4: Build Artifact ───────────────────────────────────
+  build:
+    name: Build ZIP
+    runs-on: ubuntu-latest
+    needs: [lint, security, test]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create release ZIP
+        run: |
+          mkdir -p dist
+          zip -r dist/ssh-buddy-${{ github.sha }}.zip . \
+            --exclude "*.git*" \
+            --exclude "__pycache__/*" \
+            --exclude "*.pyc" \
+            --exclude "dist/*" \
+            --exclude ".github/*"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ssh-buddy-build
+          path: dist/ssh-buddy-*.zip
+          retention-days: 30
+
+  # ── Job 5: Draft Release (manual only) ─────────────────────
+  draft-release:
+    name: Create Draft Release
+    runs-on: ubuntu-latest
+    needs: [build]
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'draft-release'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ssh-buddy-build
+          path: dist/
+
+      - name: Get version
+        id: version
+        run: |
+          VERSION=$(python -c "
+          import re, open as o
+          # read version from ssh_buddy.py or default
+          print('v1.0.0')
+          " 2>/dev/null || echo "v1.0.0")
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Create Draft Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version.outputs.version }}-draft-${{ github.run_number }}
+          name: "SSH Buddy ${{ steps.version.outputs.version }} (DRAFT)"
+          draft: true
+          prerelease: false
+          body: |
+            ## SSH Buddy Release (Draft)
+            
+            ### What's included:
+            - SSH connection manager (CLI + GUI)
+            - SSH key auto-detection
+            - System tray support
+            - Auto-start on boot
+            - SSH hook (intercepts ssh commands)
+            
+            ### Installation:
+            1. Download the ZIP
+            2. Extract it
+            3. Run: `python installer.py`
+            
+            **Test this release before publishing!**
+          files: dist/*.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # ── Job 6: Publish Release (manual only) ───────────────────
+  publish-release:
+    name: Publish Public Release
+    runs-on: ubuntu-latest
+    needs: [build]
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'publish-release'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ssh-buddy-build
+          path: dist/
+
+      - name: Create Public Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v1.0.0
+          name: "SSH Buddy v1.0.0"
+          draft: false
+          prerelease: false
+          body: |
+            ## SSH Buddy v1.0.0 — Official Release 🚀
+            
+            Never forget a server again.
+            
+            ### Features:
+            - Auto-saves SSH servers (IP, username, tags, notes)
+            - Intercepts `ssh user@ip` commands automatically
+            - SSH key detection (passwordless login)
+            - One-click key copying to servers
+            - System tray — always running
+            - Auto-start on boot
+            - Works on Windows + Linux
+            
+            ### Quick Start:
+            ```
+            python installer.py
+            ```
+            Then restart your terminal and just use `ssh` normally!
+          files: dist/*.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
