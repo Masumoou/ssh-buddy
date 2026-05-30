@@ -2,9 +2,9 @@ import tkinter as tk
 from tkinter import ttk, messagebox
 import threading
 
-from db import init_db, get_all_servers, add_server, delete_server, search_servers, get_server, update_server
-from keystore import save_password, get_password, delete_password
-from connector import connect_ssh
+from .db import init_db, get_all_servers, add_server, delete_server, search_servers, get_server, update_server
+from .keystore import save_password, get_password, delete_password
+from .connector import connect_ssh
 
 # ── Colour palette — 2026 Premium SaaS Dark Theme ────────────────────────────
 BG       = "#0A111E"
@@ -355,7 +355,7 @@ class SSHBuddyApp:
                       width=44, height=44, radius=8, btn_color=SURFACE2, fg_color=RED, hover_color="#7F1D1D", font=FT_BTN).pack(side="left", padx=6)
 
     def _connect_srv(self, srv):
-        from connector import connect_ssh, check_key_auth
+        from .connector import connect_ssh, check_key_auth
         
         def _check_and_connect():
             if srv.get("use_key", 0):
@@ -392,7 +392,7 @@ class SSHBuddyApp:
 
     def _copy_key_flow(self, srv):
         import os, subprocess, platform
-        from connector import copy_ssh_key
+        from .connector import copy_ssh_key
         
         pub_keys = ["~/.ssh/id_ed25519.pub", "~/.ssh/id_rsa.pub", "~/.ssh/id_ecdsa.pub", "~/.ssh/id_dsa.pub"]
         found_key = None
@@ -443,7 +443,7 @@ class SSHBuddyApp:
 
     def _remove_key_flow(self, srv):
         import os, platform
-        from connector import remove_ssh_key
+        from .connector import remove_ssh_key
         
         pub_keys = ["~/.ssh/id_ed25519.pub", "~/.ssh/id_rsa.pub", "~/.ssh/id_ecdsa.pub", "~/.ssh/id_dsa.pub"]
         found_key = None
@@ -592,7 +592,7 @@ class _PwDlg:
         t.minsize(580, 10)
 
     def _try_key(self):
-        from connector import check_key_auth
+        from .connector import check_key_auth
         self.top.config(cursor="wait")
         self.top.update()
         
@@ -744,7 +744,7 @@ class _SrvDlg:
         if not editing:
             # Auto-check key auth in background
             def _check_bg():
-                from connector import check_key_auth
+                from .connector import check_key_auth
                 ip = self._vars["ip"].get().strip()
                 usr = self._vars["username"].get().strip()
                 try: p = int(self._vars["port"].get().strip() or "22")

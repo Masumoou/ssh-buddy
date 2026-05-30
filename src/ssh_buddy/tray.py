@@ -24,11 +24,11 @@ except ImportError:
     print("   Install:  pip install Pillow")
     sys.exit(1)
 
-from db import init_db, get_all_servers, get_server
-from keystore import get_password
-from connector import connect_ssh
-from autostart import enable_autostart, disable_autostart, is_autostart_enabled
-from shell_setup import setup as shell_hook_setup, remove as shell_hook_remove, is_hook_installed
+from .db import init_db, get_all_servers, get_server
+from .keystore import get_password
+from .connector import connect_ssh
+from .autostart import enable_autostart, disable_autostart, is_autostart_enabled
+from .shell_setup import setup as shell_hook_setup, remove as shell_hook_remove, is_hook_installed
 
 
 # ── Icon generation ─────────────────────────────────────────────────────────────
@@ -77,7 +77,7 @@ def _get_recent_servers(limit: int = 5) -> list:
 def _open_gui(icon=None, item=None):
     """Open the SSH Buddy GUI in a separate thread (non-blocking)."""
     def _run():
-        from gui import run_gui
+        from .gui import run_gui
         run_gui()
     threading.Thread(target=_run, daemon=True).start()
 
@@ -86,7 +86,7 @@ def _open_add_server(icon=None, item=None):
     """Open a Tkinter window with the Add Server dialog."""
     def _run():
         import tkinter as tk
-        from gui import SSHBuddyApp
+        from .gui import SSHBuddyApp
         init_db()
         root = tk.Tk()
         try:

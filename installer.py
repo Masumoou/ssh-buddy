@@ -12,10 +12,11 @@ import threading
 import tkinter as tk
 from pathlib import Path
 
-# Ensure sibling imports work regardless of cwd
+# Ensure src is in sys.path
 _SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-if _SCRIPT_DIR not in sys.path:
-    sys.path.insert(0, _SCRIPT_DIR)
+_SRC_DIR = os.path.join(_SCRIPT_DIR, "src")
+if _SRC_DIR not in sys.path:
+    sys.path.insert(0, _SRC_DIR)
 
 # ── Colour palette (Catppuccin Mocha — same as gui.py) ──────────────────────
 BG       = "#1e1e2e"
@@ -177,7 +178,7 @@ class InstallerApp:
         self.root.after(0, lambda: self._mark_step(1, "running"))
         self.root.after(0, lambda: self._set_status("Registering auto-start on boot …"))
         try:
-            from autostart import enable_autostart
+            from ssh_buddy.autostart import enable_autostart
             enable_autostart()
             self.root.after(0, lambda: self._mark_step(1, "done"))
         except Exception as exc:
@@ -190,7 +191,7 @@ class InstallerApp:
         self.root.after(0, lambda: self._mark_step(2, "running"))
         self.root.after(0, lambda: self._set_status("Installing SSH hook …"))
         try:
-            from shell_setup import setup as shell_hook_setup
+            from ssh_buddy.shell_setup import setup as shell_hook_setup
             msgs = shell_hook_setup()
             detail = "  |  ".join(m.strip() for m in msgs if m.strip())
             self.root.after(0, lambda: self._mark_step(2, "done"))
@@ -205,7 +206,7 @@ class InstallerApp:
         self.root.after(0, lambda: self._mark_step(3, "running"))
         self.root.after(0, lambda: self._set_status("Starting tray app …"))
         try:
-            tray_script = str(Path(_SCRIPT_DIR) / "tray.py")
+            tray_script = str(Path(_SRC_DIR) / "ssh_buddy" / "tray.py")
             system = platform.system()
 
             if system == "Windows":
@@ -287,7 +288,7 @@ class InstallerApp:
     def _open_gui(self):
         """Launch the main GUI and close the installer window."""
         def _run():
-            from gui import run_gui
+            from ssh_buddy.gui import run_gui
             run_gui()
         threading.Thread(target=_run, daemon=True).start()
         self.root.after(500, self.root.destroy)

@@ -18,6 +18,13 @@ Usage:
 """
 
 import sys
+import os
+from pathlib import Path
+
+# Add src to sys.path so we can import from ssh_buddy package
+_SRC_DIR = Path(__file__).resolve().parent / "src"
+if str(_SRC_DIR) not in sys.path:
+    sys.path.insert(0, str(_SRC_DIR))
 
 
 def main():
@@ -25,7 +32,7 @@ def main():
 
     # GUI
     if cmd in ("gui", "--gui", "-g"):
-        from gui import run_gui
+        from ssh_buddy.gui import run_gui
         run_gui()
 
     # One-click installer
@@ -35,19 +42,19 @@ def main():
 
     # System tray app
     elif cmd == "tray":
-        from tray import run_tray
+        from ssh_buddy.tray import run_tray
         run_tray()
 
     # SSH wrapper (forward remaining args as if they were ssh args)
     elif cmd == "wrapper":
-        from wrapper import main as wrapper_main
+        from ssh_buddy.wrapper import main as wrapper_main
         # Rebuild sys.argv so wrapper sees: wrapper.py [user@host ...]
         sys.argv = [sys.argv[0]] + sys.argv[2:]
         wrapper_main()
 
     # Everything else → CLI
     else:
-        from cli import run_cli
+        from ssh_buddy.cli import run_cli
         run_cli()
 
 

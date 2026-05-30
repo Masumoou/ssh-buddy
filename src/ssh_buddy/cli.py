@@ -9,12 +9,12 @@ import json
 import sys
 from pathlib import Path
 
-from db import (
+from .db import (
     init_db, add_server, get_all_servers, get_server,
     search_servers, delete_server, update_server,
 )
-from keystore import save_password, get_password, delete_password
-from connector import connect_ssh
+from .keystore import save_password, get_password, delete_password
+from .connector import connect_ssh
 
 # ── ANSI colours (work on Linux, Windows 10+) ──────────────────────────────
 R  = "\033[91m"
@@ -210,6 +210,13 @@ def cmd_import(args):
 # ── Main ───────────────────────────────────────────────────────────────────
 
 def run_cli():
+    import sys
+    if sys.stdout.encoding != 'utf-8':
+        try:
+            sys.stdout.reconfigure(encoding='utf-8')
+        except AttributeError:
+            pass
+
     init_db()
 
     parser = argparse.ArgumentParser(
@@ -255,7 +262,7 @@ def run_cli():
     elif args.command == "import":
         cmd_import(args)
     elif args.command == "gui":
-        from gui import run_gui
+        from .gui import run_gui
         run_gui()
     else:
         print(HEADER)

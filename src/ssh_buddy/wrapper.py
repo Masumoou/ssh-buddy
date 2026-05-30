@@ -13,15 +13,16 @@ import sys
 import re
 import os
 
-# Ensure the script's directory is on sys.path so sibling imports work
+# Ensure the 'src' directory is on sys.path so package imports work
 # regardless of where the user invokes the wrapper from.
 _SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-if _SCRIPT_DIR not in sys.path:
-    sys.path.insert(0, _SCRIPT_DIR)
+_SRC_DIR = os.path.dirname(_SCRIPT_DIR)
+if _SRC_DIR not in sys.path:
+    sys.path.insert(0, _SRC_DIR)
 
-from db import init_db, get_all_servers, add_server, update_server
-from keystore import save_password, get_password
-from connector import connect_ssh
+from ssh_buddy.db import init_db, get_all_servers, add_server, update_server
+from ssh_buddy.keystore import save_password, get_password
+from ssh_buddy.connector import connect_ssh
 
 # ── Colour palette — 2026 Premium SaaS Dark Theme ────────────────────────────
 BG       = "#0A111E"       # Deep dark background (Window)
@@ -441,7 +442,7 @@ def _show_new_server_dialog(ip: str, username: str, port: int) -> dict | None:
     key_status_lbl.pack(padx=24, pady=(0, 20), anchor="w")
     
     def _check_bg():
-        from connector import check_key_auth
+        from ssh_buddy.connector import check_key_auth
         if check_key_auth(ip, username, port):
             root.after(0, lambda: use_key_var.set(True))
             root.after(0, lambda: key_status_lbl.config(text="✅ SSH key detected on this server"))
@@ -564,7 +565,7 @@ def _show_password_dialog(server: dict) -> dict | None:
     bf = tk.Frame(root, bg=BG)
     bf.pack(fill="x", padx=16, pady=(8, 24))
     def _try_key(event=None):
-        from connector import check_key_auth
+        from ssh_buddy.connector import check_key_auth
         root.config(cursor="wait")
         root.update()
         if check_key_auth(server["ip"], server["username"], server["port"]):
@@ -654,7 +655,7 @@ def main():
             sys.exit(0)
 
         if use_key:
-            from connector import check_key_auth
+            from ssh_buddy.connector import check_key_auth
             import tkinter as tk
             from tkinter import messagebox
             
@@ -693,7 +694,7 @@ def main():
     else:
         # ── Known server ───────────────────────────────────────────────────
         alias    = server["alias"]
-        from connector import check_key_auth
+        from ssh_buddy.connector import check_key_auth
         
         if server.get("use_key", 0):
             # User wants key auth, verify it works
