@@ -15,6 +15,9 @@ on:
           - draft-release
           - publish-release
 
+permissions:
+  contents: write
+
 jobs:
 
   # ── Job 1: Code Quality ─────────────────────────────────────
