@@ -79,8 +79,7 @@ jobs:
         run: pip install keyring keyrings.alt
 
       - name: Test imports
-        env:
-          PYTHONPATH: src
+        working-directory: src
         run: |
           python -c "from ssh_buddy import db; db.init_db(); print('db.py OK')"
           python -c "from ssh_buddy import keystore; print('keystore.py OK')"
@@ -88,8 +87,7 @@ jobs:
           python -c "from ssh_buddy import cli; print('cli.py OK')"
 
       - name: Test DB operations
-        env:
-          PYTHONPATH: src
+        working-directory: src
         run: |
           python -c "
           from ssh_buddy import db
