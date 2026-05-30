@@ -107,42 +107,34 @@ def _remove_linux() -> list[str]:
 
 # ── Windows ────────────────────────────────────────────────────────────────────
 
-def _get_ps_profile() -> Path:
-    """Return the path to the current-user PowerShell profile."""
-    # $PROFILE resolves to this path
+def _get_ps_profiles() -> list[Path]:
+    """Return the paths to the current-user PowerShell profiles (both v5 and v7)."""
     docs = Path.home() / "Documents"
-    for sub in ["PowerShell", "WindowsPowerShell"]:
+    profiles = []
+    for sub in ["WindowsPowerShell", "PowerShell"]:
         p = docs / sub / "Microsoft.PowerShell_profile.ps1"
-        if p.exists():
-            return p
-    # Default to WindowsPowerShell
-    p = docs / "WindowsPowerShell" / "Microsoft.PowerShell_profile.ps1"
-    p.parent.mkdir(parents=True, exist_ok=True)
-    return p
+        p.parent.mkdir(parents=True, exist_ok=True)
+        profiles.append(p)
+    return profiles
 
 
 def _setup_windows() -> list[str]:
-    """Install the ssh function into the PowerShell profile."""
+    """Install the ssh function into the PowerShell profiles."""
     python = sys.executable or "python"
     wrapper_win = _WRAPPER.replace("/", "\\")
-    # Use & (call operator) with double-quoted paths so spaces are safe,
-    # and @args to properly splat all arguments to the wrapper.
-    func = (
-        f'function ssh {{ & "{python}" "{wrapper_win}" @args }}'
-    )
+    func = f'function ssh {{ & "{python}" "{wrapper_win}" @args }}'
     block = f"\n{_MARKER_BEGIN}\n{func}\n{_MARKER_END}\n"
 
-    profile = _get_ps_profile()
-    content = _read_file(profile)
-
     messages = []
-    if _has_hook(content):
-        # Re-write to pick up the fixed function format
-        content = _remove_hook(content)
-
-    new_content = _inject_hook(content, block)
-    profile.write_text(new_content, encoding="utf-8")
-    messages.append(f"  ✓ SSH function written to {profile}")
+    
+    profiles = _get_ps_profiles()
+    for profile in profiles:
+        content = _read_file(profile)
+        if _has_hook(content):
+            content = _remove_hook(content)
+        new_content = _inject_hook(content, block)
+        profile.write_text(new_content, encoding="utf-8")
+        messages.append(f"  ✓ SSH function written to {profile}")
 
     # Reload the profile and verify
     import subprocess
@@ -177,18 +169,20 @@ def _setup_windows() -> list[str]:
 
 
 def _remove_windows() -> list[str]:
-    """Remove the ssh function from the PowerShell profile."""
-    profile = _get_ps_profile()
-    content = _read_file(profile)
+    """Remove the ssh function from the PowerShell profiles."""
+    profiles = _get_ps_profiles()
     messages = []
-
-    if not _has_hook(content):
-        messages.append("  (no hook found to remove)")
-    else:
+    
+    for profile in profiles:
+        content = _read_file(profile)
+        if not _has_hook(content):
+            continue
         new_content = _remove_hook(content)
         profile.write_text(new_content, encoding="utf-8")
         messages.append(f"  ✓ Removed ssh hook from {profile}")
 
+    if not messages:
+        messages.append("  (no hook found to remove)")
     messages.append("")
     messages.append("  Restart your terminal to apply changes.")
     return messages
@@ -200,8 +194,10 @@ def is_hook_installed() -> bool:
     """Check whether the ssh hook is currently installed."""
     system = platform.system()
     if system == "Windows":
-        profile = _get_ps_profile()
-        return _has_hook(_read_file(profile))
+        for profile in _get_ps_profiles():
+            if _has_hook(_read_file(profile)):
+                return True
+        return False
     else:
         for rc in [Path.home() / ".bashrc", Path.home() / ".zshrc"]:
             if _has_hook(_read_file(rc)):
