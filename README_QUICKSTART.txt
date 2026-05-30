@@ -2,25 +2,21 @@
   SSH Buddy — Quick Start Guide
 =============================================
 
-FIRST TIME SETUP:
-  python installer.py
-  (then restart your terminal)
+FIRST TIME SETUP (Windows):
+  Open PowerShell and run:
+  iwr https://raw.githubusercontent.com/Masumoou/ssh-buddy/main/install.ps1 -UseBasicParsing | iex
 
-DAILY USE:
-  - Tray icon is always running in your taskbar
-  - Just type: ssh user@ip  (the wrapper handles everything)
-  - Or open the GUI from the tray icon
+FIRST TIME SETUP (Linux):
+  curl -sL https://raw.githubusercontent.com/Masumoou/ssh-buddy/main/install.sh | bash
+
+DAILY USE (Restart your terminal first!):
+  - Just type: ssh user@ip  (the wrapper handles everything, shows GUI if new)
+  - Need the GUI? Type: sshbuddy  (from anywhere!)
+  - Or open the GUI from the tray icon in your taskbar.
 
 MANUAL COMMANDS (if needed):
-  python ssh_buddy.py gui          Open the graphical interface
-  python ssh_buddy.py add          Add a server interactively
-  python ssh_buddy.py connect      Pick a server and connect
-  python ssh_buddy.py list         List all saved servers
-  python ssh_buddy.py search xxx   Search by IP, alias, etc.
-  python ssh_buddy.py delete alias Delete a server
-  python ssh_buddy.py export       Export servers to JSON
-  python ssh_buddy.py import f.json Import servers from JSON
-
-  python ssh_buddy.py install      Re-run the installer
-  python ssh_buddy.py tray         Start the tray app only
-  python ssh_buddy.py wrapper user@ip  Run the SSH wrapper directly
+  ssh-buddy add          Add a server interactively
+  ssh-buddy connect      Pick a server and connect
+  ssh-buddy list         List all saved servers
+  ssh-buddy search xxx   Search by IP, alias, etc.
+  ssh-buddy delete alias Delete a server

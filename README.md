@@ -9,23 +9,22 @@ connect with one command — or one click in the GUI.
 
 ## 🚀 Quick Start
 
-### Linux
+### Windows (1-Click Install)
+Open **PowerShell** and run:
+```powershell
+iwr https://raw.githubusercontent.com/Masumoou/ssh-buddy/main/install.ps1 -UseBasicParsing | iex
+```
+
+### Linux / macOS
 ```bash
-chmod +x install.sh
-./install.sh
-source ~/.bashrc
-
-ssh-buddy add          # add your first server
-ssh-buddy connect      # pick from list and connect
-ssh-buddy gui          # launch GUI
+curl -sL https://raw.githubusercontent.com/Masumoou/ssh-buddy/main/install.sh | bash
 ```
 
-### Windows
-```
-Double-click install.bat (or run as Admin)
-
-ssh-buddy.bat add
-ssh-buddy.bat gui
+### Usage
+After installation, **restart your terminal**.
+```bash
+ssh user@192.168.1.1   # Automatically intercepted to show GUI if new
+sshbuddy               # Launch GUI from ANYWHERE
 ```
 
 ---
@@ -153,16 +152,4 @@ ssh-buddy import my_servers.json
 - **Alias**: make it memorable — `prod-web`, `db-01`, `staging-appsrv`
 - **Search**: partial match — type `207` to find all `10.10.207.x` servers
 
----
 
-## 🔮 Planned Improvements (open in Antigravity)
-
-- [ ] SSH key selection per server
-- [ ] Server groups / folders
-- [ ] Jump host / bastion support (`ProxyJump`)
-- [ ] Connection history & timestamps
-- [ ] Ping / status check before connecting
-- [ ] SFTP / SCP file transfer shortcut
-- [ ] Import from `~/.ssh/config`
-- [ ] Export to `~/.ssh/config`
-- [ ] Tray icon (system tray) on Windows

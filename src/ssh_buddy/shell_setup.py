@@ -12,8 +12,9 @@ import sys
 import platform
 from pathlib import Path
 
-# Absolute path to wrapper.py (sibling of this file)
+# Absolute path to scripts
 _WRAPPER = str(Path(__file__).resolve().parent / "wrapper.py")
+_GUI_SCRIPT = str(Path(__file__).resolve().parent.parent.parent / "ssh_buddy.py")
 
 # Markers used to find our lines inside rc / profile files
 _MARKER_BEGIN = "# >>> ssh-buddy hook >>>"
@@ -64,7 +65,8 @@ def _setup_linux() -> list[str]:
     """Install the ssh alias into bash/zsh rc files. Returns list of messages."""
     python = sys.executable or "python3"
     alias_line = f"alias ssh='{python} {_WRAPPER}'"
-    block = f"\n{_MARKER_BEGIN}\n{alias_line}\n{_MARKER_END}\n"
+    gui_alias = f"alias sshbuddy='{python} {_GUI_SCRIPT} gui'"
+    block = f"\n{_MARKER_BEGIN}\n{alias_line}\n{gui_alias}\n{_MARKER_END}\n"
 
     messages = []
     rc_files = [Path.home() / ".bashrc", Path.home() / ".zshrc"]
@@ -122,8 +124,10 @@ def _setup_windows() -> list[str]:
     """Install the ssh function into the PowerShell profiles."""
     python = sys.executable or "python"
     wrapper_win = _WRAPPER.replace("/", "\\")
+    gui_win = _GUI_SCRIPT.replace("/", "\\")
     func = f'function ssh {{ & "{python}" "{wrapper_win}" @args }}'
-    block = f"\n{_MARKER_BEGIN}\n{func}\n{_MARKER_END}\n"
+    gui_func = f'function sshbuddy {{ & "{python}" "{gui_win}" gui @args }}'
+    block = f"\n{_MARKER_BEGIN}\n{func}\n{gui_func}\n{_MARKER_END}\n"
 
     messages = []
     

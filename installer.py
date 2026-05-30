@@ -227,17 +227,13 @@ class InstallerApp:
         self._set_status("")
         self._status_lbl.pack_forget()
 
-        system = platform.system()
-        reload_hint = "Windows: restart PowerShell" if system == "Windows" else "Linux: run source ~/.bashrc"
-
         done_text = (
             "SSH Buddy is installed and running!\n\n"
             "• Tray icon is in your taskbar / system tray\n"
             "• Every time you SSH to a new server → save dialog appears\n"
-            "• Open GUI anytime from tray icon\n\n"
-            "To use SSH wrapper, reload your terminal:\n"
-            "  {hint}"
-        ).format(hint=reload_hint)
+            "• Open GUI anytime from anywhere with: sshbuddy\n\n"
+            "⚠️ IMPORTANT: Please CLOSE THIS TERMINAL and open a new one to start!"
+        )
         done_lbl = tk.Label(self.root, text=done_text, bg=BG, fg=TEXT, font=("Segoe UI", 10), justify="left")
         done_lbl.pack(fill="x", padx=60, pady=(10, 0))
 
