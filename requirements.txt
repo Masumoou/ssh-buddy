@@ -1,0 +1,12 @@
+# SSH Buddy — Python dependencies
+# keyring uses the OS keychain (Windows Credential Manager / libsecret on Linux)
+# If keyring fails (headless Linux), ssh-buddy auto-falls back to local encrypted vault.
+
+keyring>=24.0.0
+
+# System tray icon support
+pystray>=0.19.0
+Pillow>=10.0.0
+
+# Optional: uncomment for headless Linux servers (no desktop keychain)
+# keyrings.alt>=4.2.0
