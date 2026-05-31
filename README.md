@@ -35,8 +35,8 @@ sshbuddy               # Launch GUI from ANYWHERE
 |---|---|
 | Python 3.8+ | Built-in on most Linux; download from python.org for Windows |
 | `keyring` lib | Installed via `pip install -r requirements.txt` |
-| `sshpass` | Linux only — for password auto-fill (`sudo apt install sshpass`) |
-| `plink` (optional) | Windows — for password auto-fill (install PuTTY) |
+| `sshpass` | Linux only  for password auto-fill (`sudo apt install sshpass`) |
+| `plink` (optional) | Windows  for password auto-fill (install PuTTY) |
 
 ---
 
