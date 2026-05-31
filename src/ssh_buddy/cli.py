@@ -262,8 +262,12 @@ def run_cli():
     elif args.command == "import":
         cmd_import(args)
     elif args.command == "gui":
-        from .gui import run_gui
-        run_gui()
+        from .security import require_master_password
+        if require_master_password():
+            from .gui import run_gui
+            run_gui()
+        else:
+            print("\n❌ Access Denied: Master password incorrect.\n")
     else:
         print(HEADER)
         parser.print_help()

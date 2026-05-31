@@ -77,6 +77,9 @@ def _get_recent_servers(limit: int = 5) -> list:
 def _open_gui(icon=None, item=None):
     """Open the SSH Buddy GUI in a separate thread (non-blocking)."""
     def _run():
+        from .security import require_master_password
+        if not require_master_password():
+            return
         from .gui import run_gui
         run_gui()
     threading.Thread(target=_run, daemon=True).start()
@@ -85,6 +88,9 @@ def _open_gui(icon=None, item=None):
 def _open_add_server(icon=None, item=None):
     """Open a Tkinter window with the Add Server dialog."""
     def _run():
+        from .security import require_master_password
+        if not require_master_password():
+            return
         import tkinter as tk
         from .gui import SSHBuddyApp
         init_db()

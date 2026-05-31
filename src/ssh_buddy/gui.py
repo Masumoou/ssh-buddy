@@ -272,6 +272,9 @@ class SSHBuddyApp:
         ref_btn = RoundedButton(tb, text="Refresh", icon="\uE72C", command=self._load, width=120, height=44, radius=8, btn_color=CARD, fg_color=TEXT, hover_color=SURFACE2, font=FT_BTN, outline_color=BORDER, outline_width=1)
         ref_btn.pack(side="left", padx=4)
 
+        pwd_btn = RoundedButton(tb, text="Password", icon="\uE8D7", command=self._change_password, width=130, height=44, radius=8, btn_color=CARD, fg_color=TEXT, hover_color=SURFACE2, font=FT_BTN, outline_color=BORDER, outline_width=1)
+        pwd_btn.pack(side="left", padx=4)
+
         sf = tk.Frame(tb, bg=BG)
         sf.pack(side="right", padx=4)
         self._sv = tk.StringVar()
@@ -527,6 +530,10 @@ class SSHBuddyApp:
             delete_server(srv["alias"])
             delete_password(srv["alias"])
             self._load()
+
+    def _change_password(self):
+        dlg = _ChangePwDlg(self.root)
+        self.root.wait_window(dlg.top)
 
 
 class _PwDlg:
@@ -799,6 +806,7 @@ class _SrvDlg:
             if self.result[k].startswith("e.g.") or self.result[k].startswith("Optional notes"):
                 self.result[k] = ""
 
+
         pw_val = self._pw.get()
         if pw_val in ["Leave empty if not required", "Leave empty to clear password"]:
             pw_val = "" if self.editing else None
@@ -823,3 +831,71 @@ def run_gui():
     except Exception: pass
     SSHBuddyApp(root)
     root.mainloop()
+
+class _ChangePwDlg:
+    def __init__(self, parent):
+        t = tk.Toplevel(parent)
+        self.top = t
+        t.title("Change Master Password")
+        t.configure(bg=BG)
+        t.resizable(False, False)
+        t.transient(parent)
+        t.grab_set()
+
+        hdr = tk.Frame(t, bg=BG2)
+        hdr.pack(fill="x", ipady=8)
+        tk.Label(hdr, text="🔑 Change Password", bg=BG2, fg=BLUE, font=FT_TITLE).pack(pady=(16, 4))
+        tk.Frame(t, bg=BORDER, height=1).pack(fill="x")
+
+        card = RoundedCard(t, radius=8, bg_color=CARD, parent_bg=BG, left_glow=True)
+        card.pack(fill="x", padx=20, pady=24)
+
+        pf = tk.Frame(card.inner, bg=CARD)
+        pf.pack(fill="x", padx=20, pady=20)
+        
+        # Old Password
+        tk.Label(pf, text="Old Password", bg=CARD, fg=MUTED, font=FT_LABEL, anchor="w").pack(fill="x", pady=(0, 4))
+        self.v_old = tk.StringVar()
+        RoundedIconEntry(pf, icon="\uE72E", textvariable=self.v_old, show="●", width=420, height=44, radius=8, bg_color=BG2, fg_color=TEXT, font=FT_INPUT).pack(fill="x", pady=(0, 16))
+        
+        # New Password
+        tk.Label(pf, text="New Password", bg=CARD, fg=MUTED, font=FT_LABEL, anchor="w").pack(fill="x", pady=(0, 4))
+        self.v_new = tk.StringVar()
+        RoundedIconEntry(pf, icon="\uE72E", textvariable=self.v_new, show="●", width=420, height=44, radius=8, bg_color=BG2, fg_color=TEXT, font=FT_INPUT).pack(fill="x", pady=(0, 16))
+        
+        # Confirm New
+        tk.Label(pf, text="Confirm New Password", bg=CARD, fg=MUTED, font=FT_LABEL, anchor="w").pack(fill="x", pady=(0, 4))
+        self.v_confirm = tk.StringVar()
+        RoundedIconEntry(pf, icon="\uE72E", textvariable=self.v_confirm, show="●", width=420, height=44, radius=8, bg_color=BG2, fg_color=TEXT, font=FT_INPUT).pack(fill="x", pady=(0, 16))
+
+        self.error_lbl = tk.Label(pf, text="Requirements: 12-16 chars, 1 uppercase, 1 lowercase, 1 number, 1 special.", bg=CARD, fg=MUTED, font=FT_SMALL)
+        self.error_lbl.pack(pady=4)
+
+        bf = tk.Frame(t, bg=BG)
+        bf.pack(fill="x", padx=20, pady=(8, 24))
+        
+        save_btn = RoundedButton(bf, text="Save Changes", icon="\uE74E", command=self._ok,
+                                 width=220, height=48, radius=8, btn_color="#0E9F6E", fg_color=TEXT, hover_color=GREEN, font=FT_BTN)
+        save_btn.pack(side="left", expand=True)
+        
+        cancel_btn = RoundedButton(bf, text="Cancel", command=self.top.destroy,
+                                   width=220, height=48, radius=8, btn_color=CARD, fg_color=TEXT, hover_color=SURFACE2, font=FT_BTN, outline_color=BORDER, outline_width=1)
+        cancel_btn.pack(side="right", expand=True)
+
+        t.update_idletasks()
+        x = (t.winfo_screenwidth() // 2) - (t.winfo_width() // 2)
+        y = (t.winfo_screenheight() // 2) - (t.winfo_height() // 2)
+        t.geometry(f"+{x}+{y}")
+
+    def _ok(self):
+        from .security import change_master_password
+        old = self.v_old.get()
+        new = self.v_new.get()
+        confirm = self.v_confirm.get()
+        
+        ok, msg = change_master_password(old, new, confirm)
+        if ok:
+            messagebox.showinfo("Success", msg, parent=self.top)
+            self.top.destroy()
+        else:
+            self.error_lbl.config(text=msg, fg=RED)
