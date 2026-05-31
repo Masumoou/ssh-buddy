@@ -64,14 +64,14 @@ $ ssh-buddy connect web
   Multiple matches:
   ALIAS           IP               USERNAME       PORT   TAGS
   ─────────────────────────────────────────────────────────
-  prod-web        10.10.207.31     ubuntu         22     oblak,wcf
-  staging-web     10.10.207.45     ubuntu         22     staging
+  prod-web        11.11.20.32     ubuntu         22     wcf
+  staging-web     11.22.33.55     ubuntu         22     staging
 
   Pick number [1-2]: 1
 
-→ prod-web — ubuntu@10.10.207.31:22
-  tags: oblak,wcf
-  notes: IIS server - AccountManagement, Authentication
+→ prod-web — ubuntu@11.11.33.22:22
+  tags: local,wcf
+  notes: hyperv, production
 
 Launching SSH...
 ```
@@ -147,9 +147,9 @@ ssh-buddy import my_servers.json
 
 ## 🛠️ Tips
 
-- **Tags**: use comma-separated keywords like `oblak,wcf,iis,staging` — makes search fast
-- **Notes**: write what the server does — `"IIS, AccountManagement, WCF endpoints"`
-- **Alias**: make it memorable — `prod-web`, `db-01`, `staging-appsrv`
-- **Search**: partial match — type `207` to find all `10.10.207.x` servers
+- **Tags**: use comma-separated keywords like `local, prod`  makes search fast
+- **Notes**: write what the server does  `"Hyperv, local, prod"`
+- **Alias**: make it memorable  `prod-web`, `db-01`, `staging-appsrv`
+- **Search**: partial match  type `505` to find all `11.22.33.X` servers
 
 
