@@ -18,7 +18,6 @@ Usage:
 """
 
 import sys
-import os
 from pathlib import Path
 
 # Add src to sys.path so we can import from ssh_buddy package
@@ -37,7 +36,10 @@ def main():
             from ssh_buddy.gui import run_gui
             run_gui()
         else:
-            print("\n❌ Access Denied: Master password incorrect.\n")
+            try:
+                print("\n❌ Access Denied: Master password incorrect.\n")
+            except Exception:
+                pass
 
     # One-click installer
     elif cmd in ("install", "setup"):

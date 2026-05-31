@@ -157,14 +157,17 @@ class RoundedIconEntry(tk.Canvas):
         self._create_rounded_rect(1, 1, icon_w, height-2, radius, fill=SURFACE2)
         self.create_text(icon_w/2 + 1, height/2, text=icon, fill=MUTED, font=("Segoe Fluent Icons", 12))
         
-        self.entry = tk.Entry(self, textvariable=textvariable, show=show, bg=bg_color, fg=fg_color, font=font, relief="flat", insertbackground=BLUE, highlightthickness=0)
+        kwargs_entry = {"show": show, "bg": bg_color, "fg": fg_color, "font": font, "relief": "flat", "insertbackground": BLUE, "highlightthickness": 0}
+        if textvariable is not None:
+            kwargs_entry["textvariable"] = textvariable
+        self.entry = tk.Entry(self, **kwargs_entry)
         
         self.placeholder = placeholder
         self.fg_color = fg_color
         self.textvariable = textvariable
         self.show = show
         
-        if self.placeholder and not self.textvariable.get():
+        if self.placeholder and self.textvariable and not self.textvariable.get():
             self.entry.insert(0, self.placeholder)
             self.entry.config(fg=MUTED)
             if self.show: self.entry.config(show="")
@@ -203,12 +206,13 @@ class RoundedIconEntry(tk.Canvas):
         
     def _toggle_visibility(self, e):
         current_show = self.entry.cget("show")
-        if current_show:
-            self.entry.config(show="")
-            self.itemconfig(self.eye_id, text="\uED1A") # Eye with strike
-        else:
-            self.entry.config(show="●")
-            self.itemconfig(self.eye_id, text="\uE890") # Eye
+        if self.eye_id is not None:
+            if current_show:
+                self.entry.config(show="")
+                self.itemconfig(self.eye_id, text="\uED1A") # Eye with strike
+            else:
+                self.entry.config(show="●")
+                self.itemconfig(self.eye_id, text="\uE890") # Eye
             
     def _create_rounded_rect(self, x1, y1, x2, y2, radius, **kwargs):
         points = [x1+radius, y1, x2-radius, y1, x2, y1, x2, y1+radius, x2, y2-radius, x2, y2, x2-radius, y2, x1+radius, y2, x1, y2, x1, y2-radius, x1, y1+radius, x1, y1]
@@ -239,9 +243,11 @@ class RoundedButton(tk.Canvas):
         self.btn_color = btn_color
         self.hover_color = hover_color
         
-        kwargs_rect = {"fill": btn_color}
-        kwargs_rect["outline"] = outline_color if outline_color else "#05080E"
-        kwargs_rect["width"] = outline_width if outline_width else 1
+        kwargs_rect = {
+            "fill": btn_color,
+            "outline": outline_color if outline_color else "#05080E",
+            "width": outline_width if outline_width else 1
+        }
             
         # Outer dark shadow border
         self.rect_id = self._create_rounded_rect(0, 0, width-1, height-1, radius, **kwargs_rect)
@@ -661,9 +667,9 @@ def main():
             
             _safe_print(f"[*] SSH Buddy — Verifying SSH key for {username}@{ip}...")
             if check_key_auth(ip, username, port):
-                _safe_print(f"[*] SSH Buddy — SSH key verified, connecting...")
+                _safe_print("[*] SSH Buddy — SSH key verified, connecting...")
             else:
-                _safe_print(f"[*] SSH Buddy — SSH key NOT found on server.")
+                _safe_print("[*] SSH Buddy — SSH key NOT found on server.")
                 
                 # Revert the database if we just saved it
                 if dlg.get("action") == "save":

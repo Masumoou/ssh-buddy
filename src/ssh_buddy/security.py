@@ -113,8 +113,14 @@ class MasterPasswordDialog(tk.Toplevel):
         self.configure(bg=BG)
         self.resizable(False, False)
         
-        self.transient(parent)
+        # Do NOT use transient if parent is withdrawn, otherwise it won't show in taskbar
+        # self.transient(parent)
         self.grab_set()
+        
+        # Force window to the front
+        self.attributes('-topmost', True)
+        self.focus_force()
+        self.after(100, lambda: self.attributes('-topmost', False))
         
         self.result = False
         

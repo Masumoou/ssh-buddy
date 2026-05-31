@@ -17,7 +17,7 @@ import base64
 
 
 def connect_ssh(ip: str, username: str, port: int = 22,
-                password: str = None, from_gui: bool = False, try_key_first: bool = False):
+                password: str | None = None, from_gui: bool = False, try_key_first: bool = False):
     system = platform.system()
     ssh_args = ["-p", str(port), "-o", "StrictHostKeyChecking=accept-new"]
     
