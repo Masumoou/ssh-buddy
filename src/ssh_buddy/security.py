@@ -142,7 +142,7 @@ class MasterPasswordDialog(tk.Toplevel):
         # Password entry
         f1 = tk.Frame(self, bg=SURFACE, highlightbackground=BORDER, highlightthickness=1)
         f1.pack(padx=30, pady=(10, 5), fill="x")
-        self.entry_pwd = tk.Entry(f1, bg=SURFACE, fg=SURFACE, insertbackground=SURFACE, font=("Segoe UI", 12), bd=0, show="")
+        self.entry_pwd = tk.Entry(f1, bg=SURFACE, fg=TEXT, insertbackground=TEXT, font=("Segoe UI", 12), bd=0, show="•")
         self.entry_pwd.pack(padx=10, pady=8, fill="x")
         self.entry_pwd.focus()
         self.entry_pwd.bind("<Return>", lambda e: self._submit())
@@ -151,11 +151,11 @@ class MasterPasswordDialog(tk.Toplevel):
             tk.Label(self, text="Confirm Password", bg=BG, fg=MUTED, font=("Segoe UI", 9)).pack(anchor="w", padx=30, pady=(10, 0))
             f2 = tk.Frame(self, bg=SURFACE, highlightbackground=BORDER, highlightthickness=1)
             f2.pack(padx=30, pady=(5, 5), fill="x")
-            self.entry_confirm = tk.Entry(f2, bg=SURFACE, fg=SURFACE, insertbackground=SURFACE, font=("Segoe UI", 12), bd=0, show="")
+            self.entry_confirm = tk.Entry(f2, bg=SURFACE, fg=TEXT, insertbackground=TEXT, font=("Segoe UI", 12), bd=0, show="•")
             self.entry_confirm.pack(padx=10, pady=8, fill="x")
             self.entry_confirm.bind("<Return>", lambda e: self._submit())
         
-        self.error_lbl = tk.Label(self, text="Type securely (invisible typing)", bg=BG, fg=MUTED, font=("Segoe UI", 9))
+        self.error_lbl = tk.Label(self, text="", bg=BG, fg=MUTED, font=("Segoe UI", 9))
         self.error_lbl.pack(pady=5)
         
         btn_frame = tk.Frame(self, bg=BG)
