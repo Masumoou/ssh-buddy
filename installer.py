@@ -89,7 +89,7 @@ class InstallerApp:
 
     def __init__(self):
         self.root = tk.Tk()
-        self.root.title("⚡ SSH Buddy — Setup")
+        self.root.title("⚡ SSH Buddy Setup")
         self.root.geometry("560x520")
         self.root.configure(bg=BG)
         self.root.resizable(False, False)
@@ -107,8 +107,8 @@ class InstallerApp:
         # Header
         hdr = tk.Frame(self.root, bg=BG)
         hdr.pack(fill="x", pady=(32, 16))
-        tk.Label(hdr, text="⚡ SSH Buddy — Setup", bg=BG, fg=BLUE, font=FT_TITLE).pack()
-        tk.Label(hdr, text="One-click installer — sets up everything for you", bg=BG, fg=MUTED, font=FT_TEXT).pack(pady=(4,0))
+        tk.Label(hdr, text="⚡ SSH Buddy Setup", bg=BG, fg=BLUE, font=FT_TITLE).pack()
+        tk.Label(hdr, text="One-click installer sets up everything for you", bg=BG, fg=MUTED, font=FT_TEXT).pack(pady=(4,0))
 
         # Checklist frame
         self._checklist = tk.Frame(self.root, bg=BG)
@@ -227,15 +227,23 @@ class InstallerApp:
         self._set_status("")
         self._status_lbl.pack_forget()
 
-        done_text = (
-            "SSH Buddy is installed and running!\n\n"
+        info_frame = tk.Frame(self.root, bg=BG)
+        info_frame.pack(fill="x", padx=60, pady=(10, 0))
+
+        tk.Label(info_frame, text="SSH Buddy is installed and running!", bg=BG, fg=GREEN, font=("Segoe UI", 12, "bold"), anchor="w").pack(fill="x", pady=(0, 10))
+        
+        bullets = (
             "• Tray icon is in your taskbar / system tray\n"
             "• Every time you SSH to a new server → save dialog appears\n"
-            "• Open GUI anytime from anywhere with: sshbuddy\n\n"
-            "⚠️ IMPORTANT: Please CLOSE THIS TERMINAL and open a new one to start!"
+            "• Open GUI anytime from anywhere with: sshbuddy"
         )
-        done_lbl = tk.Label(self.root, text=done_text, bg=BG, fg=TEXT, font=("Segoe UI", 10), justify="left")
-        done_lbl.pack(fill="x", padx=60, pady=(10, 0))
+        tk.Label(info_frame, text=bullets, bg=BG, fg=TEXT, font=("Segoe UI", 10), justify="left", anchor="w").pack(fill="x")
+        
+        warn_frame = tk.Frame(info_frame, bg="#3F1616", highlightbackground=RED, highlightthickness=1)
+        warn_frame.pack(fill="x", pady=(16, 0), ipady=8, ipadx=10)
+        
+        tk.Label(warn_frame, text="\uE7BA", bg="#3F1616", fg="#FCA5A5", font=("Segoe Fluent Icons", 14)).pack(side="left", padx=(5, 10))
+        tk.Label(warn_frame, text="Please CLOSE THIS TERMINAL and open a new one to start", bg="#3F1616", fg="#FCA5A5", font=("Segoe UI", 10, "bold"), anchor="w").pack(side="left")
 
         for w in self._btn_frame.winfo_children():
             w.destroy()
