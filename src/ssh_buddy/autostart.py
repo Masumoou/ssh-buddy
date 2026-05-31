@@ -1,4 +1,4 @@
-"""
+r"""
 autostart.py — Manage "Start on Boot" for SSH Buddy
   Windows : HKCU\Software\Microsoft\Windows\CurrentVersion\Run
   Linux   : ~/.config/autostart/ssh-buddy.desktop
