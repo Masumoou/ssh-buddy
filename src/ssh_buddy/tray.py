@@ -78,7 +78,7 @@ def _open_gui(icon=None, item=None):
     """Open the SSH Buddy GUI in a separate thread (non-blocking)."""
     def _run():
         from .security import require_master_password
-        if not require_master_password():
+        if not require_master_password(force_gui=True):
             return
         from .gui import run_gui
         run_gui()
@@ -89,7 +89,7 @@ def _open_add_server(icon=None, item=None):
     """Open a Tkinter window with the Add Server dialog."""
     def _run():
         from .security import require_master_password
-        if not require_master_password():
+        if not require_master_password(force_gui=True):
             return
         import tkinter as tk
         from .gui import SSHBuddyApp

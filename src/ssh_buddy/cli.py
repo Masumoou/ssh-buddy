@@ -263,7 +263,7 @@ def run_cli():
         cmd_import(args)
     elif args.command == "gui":
         from .security import require_master_password
-        if require_master_password():
+        if require_master_password(force_gui=True):
             from .gui import run_gui
             run_gui()
         else:

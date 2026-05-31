@@ -203,8 +203,10 @@ def prompt_master_password_gui() -> bool:
     root.destroy()
     return res
 
-def require_master_password() -> bool:
+def require_master_password(force_gui: bool = False) -> bool:
     """Smart router: uses CLI if attached to a terminal, otherwise GUI."""
+    if force_gui:
+        return prompt_master_password_gui()
     if sys.stdout and sys.stdout.isatty():
         return prompt_master_password_cli()
     else:

@@ -33,7 +33,7 @@ def main():
     # GUI
     if cmd in ("gui", "--gui", "-g"):
         from ssh_buddy.security import require_master_password
-        if require_master_password():
+        if require_master_password(force_gui=True):
             from ssh_buddy.gui import run_gui
             run_gui()
         else:
