@@ -367,11 +367,23 @@ class SSHBuddyApp:
                 if key_works:
                     connect_ssh(srv["ip"], srv["username"], srv["port"], None, from_gui=True, try_key_first=True)
                     return
-                # Key auth failed. Correct DB and fallback
+                # Key auth failed. Correct DB and show error
                 update_server(srv["alias"], use_key=0)
+                self.root.after(0, lambda: _key_failed_fallback())
+                return
                 
             # If use_key is 0, respect it and prompt for password
             self.root.after(0, _prompt_password_and_connect)
+        
+        def _key_failed_fallback():
+            """Show error that SSH key was not found, then fallback to password."""
+            messagebox.showwarning(
+                "SSH Key Not Found",
+                f"SSH key was not found on {srv['username']}@{srv['ip']}.\n\n"
+                f"This server does not have your SSH key configured.\n"
+                f"Falling back to password authentication.",
+            )
+            _prompt_password_and_connect()
             
         def _prompt_password_and_connect():
             pw = get_password(srv["alias"])
@@ -542,6 +554,7 @@ class _PwDlg:
         self.save = False
         self.cancelled = True
         self.force_key = False
+        self.srv = srv
         
         t = tk.Toplevel(parent)
         self.top = t

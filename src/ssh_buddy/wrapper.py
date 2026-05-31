@@ -710,8 +710,27 @@ def main():
                 connect_ssh(ip, username, port, None, from_gui=False, try_key_first=True)
                 return
             
-            # Key auth failed. Correct DB and fallback
+            # Key auth failed. Correct DB and show error
             update_server(alias, use_key=0)
+            _safe_print(f"[!] SSH Buddy — SSH key NOT found on {username}@{ip}.")
+            _safe_print(f"[!] This server does not have your SSH key configured.")
+            _safe_print(f"[!] Falling back to password authentication.")
+            
+            # Show GUI error if possible
+            try:
+                import tkinter as tk
+                from tkinter import messagebox
+                root = tk.Tk()
+                root.withdraw()
+                messagebox.showwarning(
+                    "SSH Key Not Found",
+                    f"SSH key was not found on {username}@{ip}.\n\n"
+                    f"This server does not have your SSH key configured.\n"
+                    f"Falling back to password authentication."
+                )
+                root.destroy()
+            except Exception:
+                pass
             
         # 3. Only if both above fail -> ask for password
         password = get_password(alias)
